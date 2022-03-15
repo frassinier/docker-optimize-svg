@@ -7,21 +7,26 @@ const router = express.Router();
 
 router.get("/", async (req, res) => {
   await res.send(`
-    <form method="post" action="/process" enctype="multipart/form-data">
       <label for="size">Size</label>
-      <select id="size" name="size">
+      <select id="size" name="size" onchange="change(this.value);">
         <option value="24">24</option>
         <option value="16">16</option>
         <option value="12">12</option>
       </select>
-      <label for="file">Icons</label>
-      <input type="file" name="file" accept=".svg"/>
-      <button type="submit">Submit</button>
-    </form>
+      <form id="form" method="post" action="/process/32" enctype="multipart/form-data">
+        <label for="file">Icon</label>
+        <input type="file" name="file" accept=".svg"/>
+        <button type="submit">Submit</button>
+      </form>
+      <script>
+        function change(value) { 
+            document.getElementById('form').action = '/process/' + value; 
+        }
+      </script>
     `);
 });
 
-router.post("/process", async (req, res) => {
+router.post("/process/:size", async (req, res) => {
   try {
     if (!req.files) {
       res.send({
@@ -29,9 +34,8 @@ router.post("/process", async (req, res) => {
         message: "No file uploaded",
       });
     } else {
-      console.log("body", JSON.stringify(req.body, null, 2));
       const file = req.files.file;
-      const size = req.body.size || "24";
+      const size = req.params.size || "24";
       const folderName = Date.now();
       const fileName = (file as UploadedFile).name.replace("svg", ".svg");
       const filePath = path.join(__dirname, "..") + "/public/" + folderName;
