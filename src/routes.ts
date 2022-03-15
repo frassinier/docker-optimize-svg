@@ -7,16 +7,16 @@ const router = express.Router();
 
 router.get("/", async (req, res) => {
   await res.send(`
-      <label for="size">Size</label>
-      <select id="size" name="size" onchange="change(this.value);">
-        <option value="24">24</option>
-        <option value="16">16</option>
-        <option value="12">12</option>
-      </select>
       <form id="form" method="post" action="/process/32" enctype="multipart/form-data">
-        <label for="file">Icon</label>
-        <input type="file" name="file" accept=".svg"/>
-        <button type="submit">Submit</button>
+          <label for="size">Size</label>
+          <select id="size" name="size" onchange="change(this.value);">
+            <option value="24">24</option>
+            <option value="16">16</option>
+            <option value="12">12</option>
+          </select>
+          <label for="file">Icon</label>
+          <input type="file" name="file" accept=".svg"/>
+          <button type="submit">Submit</button>
       </form>
       <script>
         function change(value) { 
