@@ -1,0 +1,35 @@
+name: Build on push
+
+on:
+  push:
+    branches: main
+
+jobs:
+  build:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: build
+        run: docker build -t optimize-svg .
+
+      - name: Log into GitHub Container Registry
+        if: github.ref == 'refs/heads/main'
+        run: echo "${{ secrets.CR_PAT }}" | docker login https://ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: push image
+        if: github.ref == 'refs/heads/main'
+        run: |
+          IMAGE_NAME=talend-svg
+          IMAGE_ID=ghcr.io/${{ github.repository }}/$IMAGE_NAME
+          DATE_TAG=$(date +%Y%m%d%H%M)
+          VERSION=$(jq -r ".version" package.json)
+          # Change all uppercase to lowercase
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          docker tag $IMAGE_NAME $IMAGE_ID:latest
+          docker tag $IMAGE_NAME $IMAGE_ID:$VERSION-${DATE_TAG}
+          echo "pushing $IMAGE_ID:latest"
+          echo "pushing $IMAGE_ID:$VERSION-${DATE_TAG}"
+          docker push $IMAGE_ID:latest
+          docker push $IMAGE_ID:$VERSION-${DATE_TAG}
