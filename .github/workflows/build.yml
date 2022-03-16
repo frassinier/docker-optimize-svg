@@ -15,9 +15,13 @@ jobs:
       - name: build
         run: docker build -t optimize-svg .
 
-      - name: Log into GitHub Container Registry
+      - name: Login to Packages Container registry
         if: github.ref == 'refs/heads/main'
-        run: echo "${{ secrets.CR_PAT }}" | docker login https://ghcr.io -u ${{ github.actor }} --password-stdin
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: push image
         if: github.ref == 'refs/heads/main'
